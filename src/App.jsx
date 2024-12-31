@@ -16,16 +16,26 @@ function App() {
   const [p1_count, SetCount1] = useState(26)
   const [p2_count, SetCount2] = useState(26)
 
-  const [w1_count, SetWager1] = useState(6)
-  const [w2_count, SetWager2] = useState(6)
-
+  const [w1_count, SetWager1] = useState(0)
+  const [w2_count, SetWager2] = useState(0)
 
   const [result, SetResult] = useState("")
-
+  const [prize, SetPrize] = useState([])
 
   const [isFlipped, SetIsFlipped] = useState(true)
   const [available, SetAvailable] = useState(true)
+  const [flipButton, SetFlipButton] = useState(true)
+  const [claimButton, SetClaimButton] = useState(false)     //revealed after flip is clicked and cards are different
+  const [warButton, SetWarButton] = useState(false)         //revealed after flip clicked and cards are same
 
+  const [tcCard, SetTCCard] = useState(false)
+  const [bcCard, SetBCCard] = useState(false)
+  const [flipVisible, setFlipVisible] = useState(true)
+
+
+  const [war_flipButton, SetWar_FlipButton] = useState(false) //revealed after war is clicked
+  const [war_claimButton, SetWar_ClaimButton] = useState(false)
+  
   //first two cards in the deck. ex: face1 = [2, C2]
   const [face1, SetFace1] = useState(first1)
   const [face2, SetFace2] = useState(first2)
@@ -36,10 +46,45 @@ function App() {
     SetIsFlipped(!isFlipped); 
   };
 
+  
   //only take a card if the card is removed from the pile
   const flipAvailable = () => {
     SetAvailable(!available); 
   };
+
+  //flip button lightswitch
+  const showFlip = () => {
+    SetFlipButton(!flipButton)
+  }
+
+  //claim button lightswitch
+  const showClaim = () => {
+    SetClaimButton(!claimButton)
+  }
+
+  //war button lightswitch
+  const showWar = () => {
+    SetWarButton(!warButton)
+  }
+
+  const showWar_Flip = () => {
+    SetWar_FlipButton(!war_flipButton)
+  }
+  const showWar_Claim = () => {
+    SetWar_ClaimButton(!war_claimButton)
+  }
+
+
+  const showTC = () => {
+    SetTCCard(!tcCard)
+  }
+  const showBC = () => {
+    SetBCCard(!bcCard)
+  }
+
+  const showFlipVisible = () => {
+    setFlipVisible(!flipVisible)
+  }
 
 
   function decrement1(){
@@ -55,14 +100,45 @@ function App() {
   function compare(face1,face2){
     if(face1[0] > face2[0]){
       SetResult("Card 1 wins")
+      return 0
       
     }
     else if(face1[0] < face2[0]){
       SetResult("Card 2 wins")
+      return 0
     }
     else{
       SetResult("WAR!")
+      SetWarButton(!warButton)
+      return 1
     }
+
+  }
+
+  function war(){
+    for(let i = 0; i < 3; i++){
+      if(p1_count > 1 && p2_count > 1){
+        //functional form of useState
+        SetWager1(((prevW1) => prevW1 + 1))
+        SetCount1((prevp1)=> prevp1-1)
+        SetWager2(((prevW2) => prevW2 + 1))
+        SetCount2(((prevp2) => prevp2 -1))
+  
+      }
+      else{
+        break
+      }
+    }
+
+    showTC()          //reveal the placeholder card
+    showBC()          //reveal the placeholder card
+    showWar()         //hide the war button
+    showFlipVisible() //hide the flip cards and thus the flip action
+    flipCard()        //flip the cards
+    showWar_Flip()    //reveal the war flip button
+    
+
+
   }
 
   function claim(temp1,temp2){
@@ -94,9 +170,21 @@ function App() {
 
   }
 
-  // function wager(){
+  function war_flip(){
+    showWar_Flip()      //hide war_flip button
+    showFlipVisible()   //turn on flip action visibility
+    flipCard()          //flip the card
+    decrement1()        //decrease total p1 count
+    decrement2()        //decrease total p2 count
 
-  // }
+    SetFace1(deck1.dequeue())
+    SetFace2(deck2.dequeue())
+
+  }
+
+  const war_claim = () => {
+    
+  }
 
 
   return (
@@ -105,14 +193,17 @@ function App() {
       <div>
         <button className = "deal">{p1_count}</button>
         <button className = "FC">{p2_count}</button>
+        <button>{result}</button>
         
       </div>
       <div>
         {/* <button className = "deal" onClick={increment1}>deal</button> */}
-        {available &&(<button className = "flip" onClick={() => { flipCard(); (available ? (decrement1(), decrement2(), flipAvailable(), compare(face1,face2)): flipAvailable())}}>flip</button>)}
-        {!available &&(<button className = "claim" onClick={() => { flipCard(); claim(face1,face2); (available ? (decrement1(), decrement2(), flipAvailable()): flipAvailable())}}>claim</button>)}
-        {!available &&(<button className = "claim" onClick={() => { flipCard(); claim(face1,face2); (available ? (decrement1(), decrement2(), flipAvailable()): flipAvailable())}}>wager</button>)}
-        <div className = "result">{result}</div>
+        {flipButton &&(<button  onClick={() => { flipCard(), decrement1(), decrement2(), showFlip(), (compare(face1,face2)==0 ? showClaim(): showWar())}}>flip</button>)}
+        {claimButton &&(<button c onClick={() => { flipCard(), claim(face1,face2), showFlip(), showClaim()}}>claim</button>)}
+        {warButton &&(<button onClick={() => {war()}}>war</button>)}
+        {war_flipButton &&(<button onClick={() => {war_flip(), (compare(face1,face2)==0 ? showWar_Claim(): showWar())}}>battle card</button>)}
+        {war_claimButton &&(<button onClick={() => {war_claim()}}>claim war prize</button>)}
+        <div>{w1_count}</div>
       </div>
       
     </div>
@@ -173,23 +264,25 @@ function App() {
       {p1_count > 2 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card T24"></div>)}
       {p1_count > 1 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card T25"></div>)}
       
-      {p1_count > -1 && (
-      <>
+      {/* temporary placeholder card for war */}
+      {tcCard && (<div style={{ backgroundImage: `url(${face1[1]})`,backgroundSize: "cover"}} className= "card TC"></div>)}
+
+      {/* card will disappear if last card is drawn */}
       {p1_count > 0 && (<div style={{ backgroundImage: `url(${background1})`,backgroundSize: "cover"}} className= "card"></div>)}
+
       <ReactCardFlip flipDirection="verticle" isFlipped={isFlipped}>
-        <div style={{ backgroundImage: `url(${face1[1]})`,backgroundSize: "cover"}} className= "card TC"></div>  
-        {p1_count > 100 && (<div style={{ backgroundImage: `url(${background1})`,backgroundSize: "cover"}} className= "card" ></div>)}
+        {flipVisible && (<div style={{ backgroundImage: `url(${face1[1]})`,backgroundSize: "cover"}} className= "card TC"></div>)}
+        {false && (<div style={{ backgroundImage: `url(${background1})`,backgroundSize: "cover"}} className= "card" ></div>)}
       </ReactCardFlip>
 
-      {w1_count > 5 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW1"></div>)}
-      {w1_count > 4 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW2"></div>)}
-      {w1_count > 3 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW3"></div>)}
-      {w1_count > 2 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW4"></div>)}
-      {w1_count > 1 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW5"></div>)}
-      {w1_count > 0 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW6"></div>)}
+      {w1_count > 0 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW1"></div>)}
+      {w1_count > 1 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW2"></div>)}
+      {w1_count > 2 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW3"></div>)}
+      {w1_count > 3 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW4"></div>)}
+      {w1_count > 4 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW5"></div>)}
+      {w1_count > 5 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card TW6"></div>)}
       
-      </>
-      )}
+     
     </div>
     <div className="pile2">
       {/* <div style={{backgroundImage: `url(${face2[1]})`,backgroundSize: "cover",}}className="card T BC"></div> */}
@@ -246,20 +339,25 @@ function App() {
       {p2_count > 2 && <div style={{ backgroundImage: `url(${background2})`, backgroundSize: "cover" }} className='card B24'></div>}
       {p2_count > 1 && <div style={{ backgroundImage: `url(${background2})`, backgroundSize: "cover" }} className='card B25'></div>}
       
+      {/* temporary placeholder card for war */}
+      {tcCard && (<div style={{ backgroundImage: `url(${face2[1]})`,backgroundSize: "cover"}} className= "card BC"></div>)}
+
+
       {p2_count > -1 && (
       <>
       {p2_count > 0 && (<div style={{ backgroundImage: `url(${background2})`,backgroundSize: "cover"}} className= "card B"></div>)}
-        <ReactCardFlip flipDirection="verticle" isFlipped={isFlipped}>
-        <div style={{ backgroundImage: `url(${face2[1]})`, backgroundSize: "cover" }} className="card BC"></div>
-        {p2_count > 100 && (<div style={{ backgroundImage: `url(${background2})`, backgroundSize: "cover" }} className="card B"></div>)}
+
+      <ReactCardFlip flipDirection="verticle" isFlipped={isFlipped}>
+        {flipVisible && (<div style={{ backgroundImage: `url(${face2[1]})`, backgroundSize: "cover" }} className="card BC"></div>)}
+        {false && (<div style={{ backgroundImage: `url(${background2})`, backgroundSize: "cover" }} className="card B"></div>)}
       </ReactCardFlip>
 
-      {w2_count > 5 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW1"></div>)}
-      {w2_count > 4 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW2"></div>)}
-      {w2_count > 3 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW3"></div>)}
-      {w2_count > 2 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW4"></div>)}
-      {w2_count > 1 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW5"></div>)}
-      {w2_count > 0 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW6"></div>)}
+      {w2_count > 0 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW1"></div>)}
+      {w2_count > 1 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW2"></div>)}
+      {w2_count > 2 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW3"></div>)}
+      {w2_count > 3 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW4"></div>)}
+      {w2_count > 4 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW5"></div>)}
+      {w2_count > 5 && (<div style={{backgroundImage: `url(${background2})`,backgroundSize: "cover",}}className="card BW6"></div>)}
       
       </>
       )}
