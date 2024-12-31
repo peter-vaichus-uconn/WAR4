@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import background1 from "./Screenshot 2024-11-21 at 1.21.42 PM.png";
 import background2 from "./Screenshot 2024-11-21 at 1.29.16 PM.png";
+
 import ReactCardFlip from 'react-card-flip';
 import './App.css'
 
@@ -13,177 +14,224 @@ const first2 = deck2.dequeue() // [2,S2]
 
 function App() {
 
-  const [p1_count, SetCount1] = useState(26)
-  const [p2_count, SetCount2] = useState(26)
+  const [p1_count, setCount1] = useState(26)
+  const [p2_count, setCount2] = useState(26)
 
-  const [w1_count, SetWager1] = useState(0)
-  const [w2_count, SetWager2] = useState(0)
+  const [w1_count, setWager1] = useState(0)
+  const [w2_count, setWager2] = useState(0)
 
-  const [result, SetResult] = useState("")
-  const [prize, SetPrize] = useState([])
+  const [result, setResult] = useState("")
+  const [prize, setPrize] = useState([])
 
-  const [isFlipped, SetIsFlipped] = useState(true)
-  const [available, SetAvailable] = useState(true)
-  const [flipButton, SetFlipButton] = useState(true)
-  const [claimButton, SetClaimButton] = useState(false)     //revealed after flip is clicked and cards are different
-  const [warButton, SetWarButton] = useState(false)         //revealed after flip clicked and cards are same
+  const [isFlipped, setIsFlipped] = useState(true)
+  const [flipButton, setFlipButton] = useState(true)
+  const [claimButton, setClaimButton] = useState(false)     //revealed after flip is clicked and cards are different
+  const [warButton, setWarButton] = useState(false)         //revealed after flip clicked and cards are same
 
-  const [tcCard, SetTCCard] = useState(false)
-  const [bcCard, SetBCCard] = useState(false)
+
+  //placeholder card light switches
+  const [tcCard, setTCCard] = useState(false)
+  const [bcCard, setBCCard] = useState(false)
+  //for maintaining the placeholder faces
+  const [tcface, setTCFace] = useState()
+  const [bcface, setBCFace] = useState()
+
+
   const [flipVisible, setFlipVisible] = useState(true)
 
 
-  const [war_flipButton, SetWar_FlipButton] = useState(false) //revealed after war is clicked
-  const [war_claimButton, SetWar_ClaimButton] = useState(false)
+  const [war_flipButton, setWar_FlipButton] = useState(false) //revealed after war is clicked
+  const [war_claimButton, setWar_ClaimButton] = useState(false)
   
   //first two cards in the deck. ex: face1 = [2, C2]
-  const [face1, SetFace1] = useState(first1)
-  const [face2, SetFace2] = useState(first2)
+  const [face1, setFace1] = useState(first1)
+  const [face2, setFace2] = useState(first2)
 
 
   //flip the card (change the state of isFlipped)
   const flipCard = () => {
-    SetIsFlipped(!isFlipped); 
-  };
-
-  
-  //only take a card if the card is removed from the pile
-  const flipAvailable = () => {
-    SetAvailable(!available); 
+    setIsFlipped(!isFlipped); 
   };
 
   //flip button lightswitch
   const showFlip = () => {
-    SetFlipButton(!flipButton)
+    setFlipButton(!flipButton)
   }
 
   //claim button lightswitch
   const showClaim = () => {
-    SetClaimButton(!claimButton)
+    setClaimButton(!claimButton)
   }
 
   //war button lightswitch
   const showWar = () => {
-    SetWarButton(!warButton)
+    setWarButton(!warButton)
   }
 
   const showWar_Flip = () => {
-    SetWar_FlipButton(!war_flipButton)
+    setWar_FlipButton(!war_flipButton)
   }
   const showWar_Claim = () => {
-    SetWar_ClaimButton(!war_claimButton)
+    setWar_ClaimButton(!war_claimButton)
   }
 
 
   const showTC = () => {
-    SetTCCard(!tcCard)
+    setTCCard(!tcCard)
   }
   const showBC = () => {
-    SetBCCard(!bcCard)
+    setBCCard(!bcCard)
   }
 
   const showFlipVisible = () => {
     setFlipVisible(!flipVisible)
   }
 
+  function counterFaces(face1,face2){
+    setTCFace(face1[1])
+    setBCFace(face2[1])
+  }
+
 
   function decrement1(){
     if(p1_count == 0){return}
-    SetCount1(p1_count-1)
+    setCount1(p1_count-1)
   }
 
   function decrement2(){
     if(p2_count == 0){return}
-    SetCount2(p2_count-1)
+    setCount2(p2_count-1)
   }
 
   function compare(face1,face2){
     if(face1[0] > face2[0]){
-      SetResult("Card 1 wins")
+      setResult("Card 1 wins")
       return 0
       
     }
     else if(face1[0] < face2[0]){
-      SetResult("Card 2 wins")
-      return 0
+      setResult("Card 2 wins")
+      return 1
     }
     else{
-      SetResult("WAR!")
-      SetWarButton(!warButton)
-      return 1
+      setResult("WAR!")
+      setWarButton(!warButton)
+      return 2
     }
 
   }
 
   function war(){
+
+    // Add the two current cards to the prize pool
+    setPrize((prevPrize) => [...prevPrize, face1[0], face2[0]]);
+
     for(let i = 0; i < 3; i++){
       if(p1_count > 1 && p2_count > 1){
         //functional form of useState
-        SetWager1(((prevW1) => prevW1 + 1))
-        SetCount1((prevp1)=> prevp1-1)
-        SetWager2(((prevW2) => prevW2 + 1))
-        SetCount2(((prevp2) => prevp2 -1))
+        setWager1(((prevW1) => prevW1 + 1))
+        setCount1((prevp1)=> prevp1-1)
+        setWager2(((prevW2) => prevW2 + 1))
+        setCount2(((prevp2) => prevp2 -1))
   
+        //use constant variables not usestate, which only updates at the end
+        const nextCard1 = deck1.dequeue();
+        const nextCard2 = deck2.dequeue();
+        setPrize((prevPrize) => [...prevPrize, nextCard1[0], nextCard2[0]]);
       }
       else{
         break
       }
     }
 
+
     showTC()          //reveal the placeholder card
     showBC()          //reveal the placeholder card
+    counterFaces(face1,face2)    //set placeholder card faces
+
     showWar()         //hide the war button
     showFlipVisible() //hide the flip cards and thus the flip action
     flipCard()        //flip the cards
     showWar_Flip()    //reveal the war flip button
     
 
-
+    setFace1(deck1.dequeue())
+    setFace2(deck2.dequeue())
   }
 
   function claim(temp1,temp2){
 
     if(p1_count ==0){
-      SetResult("Player 2 Wins!")
+      setResult("Player 2 Wins!")
 
     }
     else if(p2_count==0){
-      SetResult("Player 1 Wins!")
+      setResult("Player 1 Wins!")
     }
     else{
-      SetResult("")
+      setResult("")
     }
    
-    SetFace1(deck1.dequeue())
-    SetFace2(deck2.dequeue())
+    setFace1(deck1.dequeue())
+    setFace2(deck2.dequeue())
     
     if(temp1[0] > temp2[0]){
       deck1.enqueue(temp1)
       deck1.enqueue(temp2)
-      SetCount1(p1_count+2)
+      setCount1(p1_count+2)
     }
     else if(temp1[0] < temp2[0]){
       deck2.enqueue(temp1)
       deck2.enqueue(temp2)
-      SetCount2(p2_count+2)
+      setCount2(p2_count+2)
     }
 
   }
 
-  function war_flip(){
+  function war_flip(){  //battle card
     showWar_Flip()      //hide war_flip button
     showFlipVisible()   //turn on flip action visibility
     flipCard()          //flip the card
     decrement1()        //decrease total p1 count
     decrement2()        //decrease total p2 count
 
-    SetFace1(deck1.dequeue())
-    SetFace2(deck2.dequeue())
+    // setFace1(deck1.dequeue())
+    // setFace2(deck2.dequeue())
+
+    
+    if(compare(face1,face2) ==2){
+      showWar()
+    }
+    else{
+      showWar_Claim()
+    }
+
+    setPrize( // Replace the state
+      [ // with a new array
+        ...prize, // that contains all the old items
+        face1[0], //plus the new values
+        face2[0] 
+      ]
+    )
+
 
   }
 
+
   const war_claim = () => {
-    
+    showWar_Claim()
+    setWager1(0)
+    setWager2(0)
+    showFlip()
+ 
+    showTC()
+    showBC()
+    flipCard()
+
+    setFace1(deck1.dequeue())
+    setFace2(deck2.dequeue())
+
+    setPrize([])//reset prize pool
   }
 
 
@@ -195,15 +243,18 @@ function App() {
         <button className = "FC">{p2_count}</button>
         <button>{result}</button>
         
+        
       </div>
       <div>
         {/* <button className = "deal" onClick={increment1}>deal</button> */}
-        {flipButton &&(<button  onClick={() => { flipCard(), decrement1(), decrement2(), showFlip(), (compare(face1,face2)==0 ? showClaim(): showWar())}}>flip</button>)}
-        {claimButton &&(<button c onClick={() => { flipCard(), claim(face1,face2), showFlip(), showClaim()}}>claim</button>)}
+        {flipButton &&(<button  onClick={() => { flipCard(), decrement1(), decrement2(), showFlip(), (compare(face1,face2)!=2 ? showClaim(): showWar())}}>flip</button>)}
+        {claimButton &&(<button onClick={() => { flipCard(), claim(face1,face2), showFlip(), showClaim()}}>claim</button>)}
         {warButton &&(<button onClick={() => {war()}}>war</button>)}
-        {war_flipButton &&(<button onClick={() => {war_flip(), (compare(face1,face2)==0 ? showWar_Claim(): showWar())}}>battle card</button>)}
+        {war_flipButton &&(<button onClick={() => {war_flip()}}>battle card</button>)}
         {war_claimButton &&(<button onClick={() => {war_claim()}}>claim war prize</button>)}
-        <div>{w1_count}</div>
+        <div>{face1[0]}</div>
+        <div>{face2[0]}</div>
+        <div>prize: {prize} </div>
       </div>
       
     </div>
@@ -265,7 +316,7 @@ function App() {
       {p1_count > 1 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card T25"></div>)}
       
       {/* temporary placeholder card for war */}
-      {tcCard && (<div style={{ backgroundImage: `url(${face1[1]})`,backgroundSize: "cover"}} className= "card TC"></div>)}
+      {tcCard && (<div style={{ backgroundImage: `url(${tcface})`,backgroundSize: "cover"}} className= "card TC"></div>)}
 
       {/* card will disappear if last card is drawn */}
       {p1_count > 0 && (<div style={{ backgroundImage: `url(${background1})`,backgroundSize: "cover"}} className= "card"></div>)}
@@ -340,7 +391,7 @@ function App() {
       {p2_count > 1 && <div style={{ backgroundImage: `url(${background2})`, backgroundSize: "cover" }} className='card B25'></div>}
       
       {/* temporary placeholder card for war */}
-      {tcCard && (<div style={{ backgroundImage: `url(${face2[1]})`,backgroundSize: "cover"}} className= "card BC"></div>)}
+      {tcCard && (<div style={{ backgroundImage: `url(${bcface})`,backgroundSize: "cover"}} className= "card BC"></div>)}
 
 
       {p2_count > -1 && (

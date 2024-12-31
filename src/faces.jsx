@@ -164,22 +164,22 @@ var cards = [
 
 
 
+// for (let i = 0; i < 26; i++) {
+//     deck1.enqueue(cards[i]); 
+// }
+// for (let i = 26; i < 52; i++) {
+//     deck2.enqueue(cards[i]);
+// }
+
+var chooser = randomNoRepeats(cards);
+
 for (let i = 0; i < 26; i++) {
-    deck1.enqueue(cards[i]); 
+    deck1.enqueue(chooser());
 }
-for (let i = 26; i < 52; i++) {
-    deck2.enqueue(cards[i]);
-}
-
-// var chooser = randomNoRepeats(cards);
-
-// for (let i = 0; i < 26; i++) {
-//     deck1.enqueue(chooser());
-// }
    
-// for (let i = 0; i < 26; i++) {
-//     deck2.enqueue(chooser());
-// }
+for (let i = 0; i < 26; i++) {
+    deck2.enqueue(chooser());
+}
 
 export { Queue }
 export { deck1, deck2 };
