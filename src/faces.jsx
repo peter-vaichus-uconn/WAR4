@@ -107,14 +107,24 @@ var cards = [
     // [2, S2],
     // [2, S2],
     // [2, S2],
+    // [6, C6],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [4, S4],
+    // [2, S2],
+    // [2, S2],
+    
+
     // [2, S2],
     // [2, S2],
     // [2, S2],
     // [2, S2],
+    // [6, C6],
     // [2, S2],
     // [2, S2],
     // [2, S2],
-    // [2, S2],
+    // [5, S5],
     // [2, S2],
     // [2, S2],
 
@@ -181,22 +191,22 @@ var cards = [
 
 
 //for testing purposes
+// for (let i = 0; i < 11; i++) {
+//     deck1.enqueue(cards[i]); 
+// }
+// for (let i = 11; i <22; i++) {
+//     deck2.enqueue(cards[i]);
+// }
+
+var chooser = randomNoRepeats(cards);
+
 for (let i = 0; i < 26; i++) {
-    deck1.enqueue(cards[i]); 
+    deck1.enqueue(chooser());
 }
-for (let i = 26; i <52; i++) {
-    deck2.enqueue(cards[i]);
-}
-
-// var chooser = randomNoRepeats(cards);
-
-// for (let i = 0; i < 26; i++) {
-//     deck1.enqueue(chooser());
-// }
    
-// for (let i = 0; i < 26; i++) {
-//     deck2.enqueue(chooser());
-// }
+for (let i = 0; i < 26; i++) {
+    deck2.enqueue(chooser());
+}
 
 export { Queue }
 export { deck1, deck2 };

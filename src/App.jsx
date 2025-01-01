@@ -38,8 +38,9 @@ function App() {
 
   //hide the flip action - triggered after war button clicked ("wager")
   const [flipVisible, setFlipVisible] = useState(true)
-
   const [winner_color,setWinner_Color] = useState("")
+
+  const[war_boolean,setWar_Boolean] = useState(0) //signifies if we are in a war
 
 
   const [war_flipButton, setWar_FlipButton] = useState(false) //revealed after war is clicked
@@ -59,8 +60,6 @@ function App() {
   const showFlip = () => {
     setFlipButton(!flipButton)
   }
-
-  
 
   //claim button lightswitch
   const showClaim = () => {
@@ -131,6 +130,7 @@ function App() {
 
   }
 
+
   
 
 
@@ -147,19 +147,12 @@ function App() {
       showClaim()                 //show the claim button
     }
     else{                         //else
+      setWar_Boolean(1)           //we are now in a war, so turn the boolean true
       showWar()                   //show the war button ("wager")
     }
   }
 
 // END - FLIP BUTTON HANDLER - END//
-
-
-
-
-
-
-
-
 
 
 // STATE - CLAIM FUNCTION AND CLAIM BUTTON HANDLER - START//
@@ -219,8 +212,11 @@ function App() {
 function handle_warButton(){
 
   // Add the two current cards to the prize pool
-  setPrize((prevPrize) => [...prevPrize, face1, face2]);
-
+  
+  if(war_boolean==1){
+    setPrize((prevPrize) => [...prevPrize, face1, face2]);
+  }
+  
   let p1_take = p1_count
   let p2_take = p2_count
 
@@ -235,8 +231,8 @@ function handle_warButton(){
       p2_take -= 1
 
       //use constant variables not usestate, which only updates at the end
-      const nextCard1 = deck1.dequeue(); //battlecard
-      const nextCard2 = deck2.dequeue(); //battlecard
+      const nextCard1 = deck1.dequeue(); //set battlecard
+      const nextCard2 = deck2.dequeue(); //set battlecard
       setPrize((prevPrize) => [...prevPrize, nextCard1, nextCard2]);
     }
     else{
@@ -244,9 +240,11 @@ function handle_warButton(){
     }
   }
 
-  showTC()                      //reveal the placeholder card
-  showBC()                      //reveal the placeholder card
+  setTCCard(true)
+  setBCCard(true)
+
   counterFaces(face1,face2)     //set placeholder card faces
+
 
   showWar()                     //hide the war button
   showFlipVisible()             //hide the flip cards and thus the flip action
@@ -284,7 +282,9 @@ function war_flip(){            //"battle card"
       return
     }
     else{
-      showWar()                        
+      setWar_Boolean(0) //if another war is triggered, have shut this off
+      showWar() 
+
     }
   }
   else{
@@ -302,14 +302,15 @@ function war_flip(){            //"battle card"
 }
 
 const war_claim = () => {
-  showWar_Claim()
-  setWager1(0)
-  setWager2(0)
-  showFlip()
+  showWar_Claim()         //hide war claim button "CLAIM SPOILS"
+  setWar_Boolean(0)       //set war boolean to false because no longer in a war
+  setWager1(0)            //clear player1 wager cards
+  setWager2(0)            //clear player2 wager cards
+  showFlip()              //reveal the flip button
 
-  showTC()
-  showBC()
-  flipCard()
+  showTC()                //hide the top place holder card
+  showBC()                //hide the bottom place holder card
+  flipCard()              //flip annimation
 
   if(face1[0]> face2[0]){
     for(const element of prize){
@@ -329,6 +330,8 @@ const war_claim = () => {
 
   setWinner_Color("black")
   setResult("...")
+  setTCCard(false)
+  setBCCard(false)
   setPrize([])//reset prize pool
 }
 
@@ -347,6 +350,7 @@ const war_claim = () => {
 
       <button className="">{p1_count}</button>
       <button className="">{p2_count}</button>
+      <button className="">{war_boolean}</button>
       <div style={{color: `${winner_color}`}} className="result">{result}</div>
   
       {flipButton && (<button className="button" onClick={() => { handle_flipButton() }}>FLIP</button>)}
