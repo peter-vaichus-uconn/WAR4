@@ -13,14 +13,7 @@ html, body {
   overflow: hidden;
   height: 100%;
   /* background-image: url("./Screenshot 2024-12-31 at 2.51.56 PM.png"); */
-  /* background-color:darkgreen */
-}
-
-.score {
-  justify-content: flex-start;
-  position:relative;
-  right: 34px;
-  top: 350px;
+  /* background-color:rgb(138, 29, 113) */
 }
 
 .pile1 {
@@ -30,7 +23,7 @@ html, body {
   height: 200px; /* Adjust as needed */
   position:relative;
   right:20px;
-  bottom:70px
+  bottom:80px
 }
 
 .pile2 {
@@ -39,7 +32,7 @@ html, body {
   width: 100%; /* Or a fixed width like '500px' */
   height: 200px; /* Adjust as needed */
   position:relative;
-  top: 230px;
+  top: 220px;
   right: 18px;
 
 }
@@ -59,6 +52,50 @@ html, body {
   justify-content: center;
   align-items: center;
   overflow: hidden;
+}
+
+.button{
+  /* position: absolute; */
+  background-color: rgba(51, 51, 51, 0.05);
+  border-radius: 10px;
+  border-color: transparent;
+  color: #333333;
+  cursor: pointer;
+  display: inline-block;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  list-style: none;
+  margin: 1px;
+  padding: 10px 12px;
+  text-align: center;
+  transition: all 200ms;
+  vertical-align: baseline;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: 120px; 
+  height: 40px; 
+}
+.button:hover {
+  border-color: #646cff;
+}
+
+.result{
+  position: relative;
+  top:370px;
+  font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  left:5px;
+}
+
+.button-container {
+  justify-content: flex-start;
+  position:relative;
+  right: 34px;
+  top: 320px;
+  /* top:300px;  */
 }
 
 .T1  { right: 0px; }

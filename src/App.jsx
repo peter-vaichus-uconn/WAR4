@@ -20,14 +20,14 @@ function App() {
   const [w1_count, setWager1] = useState(0)
   const [w2_count, setWager2] = useState(0)
 
-  const [result, setResult] = useState("")
+  const [result, setResult] = useState("...")
   const [prize, setPrize] = useState([])
 
   const [isFlipped, setIsFlipped] = useState(true)
   const [flipButton, setFlipButton] = useState(true)
   const [claimButton, setClaimButton] = useState(false)     //revealed after flip is clicked and cards are different
   const [warButton, setWarButton] = useState(false)         //revealed after flip clicked and cards are same
-
+  const [refreshButton, setRefreshButton] = useState(false)
 
   //placeholder card light switches
   const [tcCard, setTCCard] = useState(false)
@@ -36,8 +36,10 @@ function App() {
   const [tcface, setTCFace] = useState()
   const [bcface, setBCFace] = useState()
 
-
+  //hide the flip action - triggered after war button clicked ("wager")
   const [flipVisible, setFlipVisible] = useState(true)
+
+  const [winner_color,setWinner_Color] = useState("")
 
 
   const [war_flipButton, setWar_FlipButton] = useState(false) //revealed after war is clicked
@@ -58,6 +60,8 @@ function App() {
     setFlipButton(!flipButton)
   }
 
+  
+
   //claim button lightswitch
   const showClaim = () => {
     setClaimButton(!claimButton)
@@ -68,13 +72,17 @@ function App() {
     setWarButton(!warButton)
   }
 
+  //refresh button lightswitch
+  const showRefresh = () => {
+    setRefreshButton(!refreshButton)
+  }
+
   const showWar_Flip = () => {
     setWar_FlipButton(!war_flipButton)
   }
   const showWar_Claim = () => {
     setWar_ClaimButton(!war_claimButton)
   }
-
 
   const showTC = () => {
     setTCCard(!tcCard)
@@ -92,7 +100,6 @@ function App() {
     setBCFace(face2[1])
   }
 
-
   function decrement1(){
     if(p1_count == 0){return}
     setCount1(p1_count-1)
@@ -106,159 +113,250 @@ function App() {
   function compare(face1,face2){
     if(face1[0] > face2[0]){
       setResult("Card 1 wins")
+      setWinner_Color("red")
       return 0
       
     }
     else if(face1[0] < face2[0]){
       setResult("Card 2 wins")
+      setWinner_Color("blue")
       return 1
     }
     else{
       setResult("WAR!")
+      setWinner_Color("")
       setWarButton(!warButton)
       return 2
     }
 
   }
 
-  function war(){
-
-    // Add the two current cards to the prize pool
-    setPrize((prevPrize) => [...prevPrize, face1[0], face2[0]]);
-
-    for(let i = 0; i < 3; i++){
-      if(p1_count > 1 && p2_count > 1){
-        //functional form of useState
-        setWager1(((prevW1) => prevW1 + 1))
-        setCount1((prevp1)=> prevp1-1)
-        setWager2(((prevW2) => prevW2 + 1))
-        setCount2(((prevp2) => prevp2 -1))
   
-        //use constant variables not usestate, which only updates at the end
-        const nextCard1 = deck1.dequeue();
-        const nextCard2 = deck2.dequeue();
-        setPrize((prevPrize) => [...prevPrize, nextCard1[0], nextCard2[0]]);
-      }
-      else{
-        break
-      }
-    }
 
 
-    showTC()          //reveal the placeholder card
-    showBC()          //reveal the placeholder card
-    counterFaces(face1,face2)    //set placeholder card faces
+// STATE - FLIP BUTTON HANDLER - START//
 
-    showWar()         //hide the war button
-    showFlipVisible() //hide the flip cards and thus the flip action
-    flipCard()        //flip the cards
-    showWar_Flip()    //reveal the war flip button
+  function handle_flipButton(){
+    flipCard()                    //flip animation
+    decrement1()                  //take a card from deck2
+    decrement2()                  //take a card from deck2
+    showFlip()                    //hide the flip button
+
     
-
-    setFace1(deck1.dequeue())
-    setFace2(deck2.dequeue())
+    if(compare(face1,face2)!=2){  //if the cards are not the same
+      showClaim()                 //show the claim button
+    }
+    else{                         //else
+      showWar()                   //show the war button ("wager")
+    }
   }
+
+// END - FLIP BUTTON HANDLER - END//
+
+
+
+
+
+
+
+
+
+
+// STATE - CLAIM FUNCTION AND CLAIM BUTTON HANDLER - START//
 
   function claim(temp1,temp2){
 
-    if(p1_count ==0){
-      setResult("Player 2 Wins!")
+    if(p1_count ==0){                 //if no cards left for player1
+      setWinner_Color("blue")         //turn the winning banner blue
+      setResult("Player 2 Wins!")     //announce that player2 won
+      showRefresh()                   //reveal play again button
+      return                          //end function
 
     }
-    else if(p2_count==0){
-      setResult("Player 1 Wins!")
+    else if(p2_count==0){             //if no cards left for player2 
+      setWinner_Color("red")          //turn the winning banner red
+      setResult("Player 1 Wins!")     //announce that player1 won
+      showRefresh()                   //reveal play again button
+      return                          //end function
+
     }
     else{
-      setResult("")
+      setWinner_Color("black")
+      setResult("...")
     }
    
-    setFace1(deck1.dequeue())
-    setFace2(deck2.dequeue())
+    setFace1(deck1.dequeue())         //draw new card for the next hand
+    setFace2(deck2.dequeue())         //draw new card for the next hand
     
-    if(temp1[0] > temp2[0]){
-      deck1.enqueue(temp1)
-      deck1.enqueue(temp2)
-      setCount1(p1_count+2)
+    if(temp1[0] > temp2[0]){          //if player1 card higher
+      deck1.enqueue(temp1)            //add both cards to player1 deck
+      deck1.enqueue(temp2)            //add both cards to player1 deck
+      setCount1(p1_count+2)           //increase the total count of player1 cards by 2
     }
-    else if(temp1[0] < temp2[0]){
-      deck2.enqueue(temp1)
-      deck2.enqueue(temp2)
-      setCount2(p2_count+2)
+    else if(temp1[0] < temp2[0]){     //if player2 card higher
+      deck2.enqueue(temp2)            //add both cards to player2 deck
+      deck2.enqueue(temp1)            //add both cards to player2 deck
+      setCount2(p2_count+2)           //increase the total count of player2 cards by 2
     }
+    showFlip()                        //reveal the flip button 
 
   }
 
-  function war_flip(){  //battle card
-    showWar_Flip()      //hide war_flip button
-    showFlipVisible()   //turn on flip action visibility
-    flipCard()          //flip the card
-    decrement1()        //decrease total p1 count
-    decrement2()        //decrease total p2 count
+  function handle_claimButton(){
+    flipCard()                        //flp animation
+    claim(face1,face2)                //claim function adds cards to winning hand
+    showClaim()                       //hide the claim button
+  }
 
-    // setFace1(deck1.dequeue())
-    // setFace2(deck2.dequeue())
 
-    
-    if(compare(face1,face2) ==2){
-      showWar()
+// END - CLAIM FUNCTION AND CLAIM BUTTON HANDLER - END//
+
+
+
+
+// START - WAR BUTTON HANDLER, WAR_FLIP, WAR_CLAIM - START//
+
+function handle_warButton(){
+
+  // Add the two current cards to the prize pool
+  setPrize((prevPrize) => [...prevPrize, face1, face2]);
+
+  let p1_take = p1_count
+  let p2_take = p2_count
+
+  for(let i = 0; i < 3; i++){
+    if(p1_take > 1 && p2_take > 1){
+      //functional form of useState
+      setWager1(((prevW1) => prevW1 + 1))
+      setCount1((prevp1)=> prevp1-1)
+      setWager2(((prevW2) => prevW2 + 1))
+      setCount2(((prevp2) => prevp2 -1))
+      p1_take -= 1
+      p2_take -= 1
+
+      //use constant variables not usestate, which only updates at the end
+      const nextCard1 = deck1.dequeue(); //battlecard
+      const nextCard2 = deck2.dequeue(); //battlecard
+      setPrize((prevPrize) => [...prevPrize, nextCard1, nextCard2]);
     }
     else{
-      showWar_Claim()
+      break
     }
-
-    setPrize( // Replace the state
-      [ // with a new array
-        ...prize, // that contains all the old items
-        face1[0], //plus the new values
-        face2[0] 
-      ]
-    )
-
-
   }
 
+  showTC()                      //reveal the placeholder card
+  showBC()                      //reveal the placeholder card
+  counterFaces(face1,face2)     //set placeholder card faces
 
-  const war_claim = () => {
+  showWar()                     //hide the war button
+  showFlipVisible()             //hide the flip cards and thus the flip action
+  flipCard()                    //flip the cards
+  showWar_Flip()                //reveal the war flip button
+  
+
+  setFace1(deck1.dequeue())     
+  setFace2(deck2.dequeue())
+}
+
+//a flip function, but for war
+function war_flip(){            //"battle card"
+  showWar_Flip()                //hide war_flip button
+  showFlipVisible()             //turn on flip animation visibility
+  flipCard()                    //flip the card
+  decrement1()                  //decrease total p1 count
+  decrement2()                  //decrease total p2 count
+
+
+  
+  if(compare(face1,face2) ==2){   
+    if(p1_count == 1){          //in the event that player1's last card triggers a war, player1 will lose
+      setWinner_Color("red")                              
+      setResult("Player 1 runs out of cards\nPlayer 2 wins!")
+      setWarButton(false)
+      showRefresh()
+      return
+    }
+    else if(p2_count == 1){     //in the event that player2's last card triggers a war, player2 will lose 
+      setWinner_Color("blue")   
+      setResult("Player 2 runs out of cards\nPlayer 1 wins!")
+      setWarButton(false)
+      showRefresh()
+      return
+    }
+    else{
+      showWar()                        
+    }
+  }
+  else{
     showWar_Claim()
-    setWager1(0)
-    setWager2(0)
-    showFlip()
- 
-    showTC()
-    showBC()
-    flipCard()
-
-    setFace1(deck1.dequeue())
-    setFace2(deck2.dequeue())
-
-    setPrize([])//reset prize pool
   }
 
+  setPrize(         // Replace the state
+    [               // with a new array
+      ...prize,     // that contains all the old items
+      face1,        // plus the new values
+      face2 
+    ]
+  )
+
+}
+
+const war_claim = () => {
+  showWar_Claim()
+  setWager1(0)
+  setWager2(0)
+  showFlip()
+
+  showTC()
+  showBC()
+  flipCard()
+
+  if(face1[0]> face2[0]){
+    for(const element of prize){
+      deck1.enqueue(element) 
+    }
+    setCount1(p1_count+(prize.length))
+  }
+  else{
+    for(const element of prize){
+      deck2.enqueue(element)
+    }
+    setCount2(p2_count+(prize.length))
+  }
+
+  setFace1(deck1.dequeue())
+  setFace2(deck2.dequeue())
+
+  setWinner_Color("black")
+  setResult("...")
+  setPrize([])//reset prize pool
+}
+
+
+// END - WAR BUTTON HANDLER - END//
+
+
+  const refresh = () => {
+    window.location.reload();
+  }
 
   return (
     <>
-    <div className ="score">
-      <div>
-        <button className = "deal">{p1_count}</button>
-        <button className = "FC">{p2_count}</button>
-        <button>{result}</button>
-        
-        
-      </div>
-      <div>
-        {/* <button className = "deal" onClick={increment1}>deal</button> */}
-        {flipButton &&(<button  onClick={() => { flipCard(), decrement1(), decrement2(), showFlip(), (compare(face1,face2)!=2 ? showClaim(): showWar())}}>flip</button>)}
-        {claimButton &&(<button onClick={() => { flipCard(), claim(face1,face2), showFlip(), showClaim()}}>claim</button>)}
-        {warButton &&(<button onClick={() => {war()}}>war</button>)}
-        {war_flipButton &&(<button onClick={() => {war_flip()}}>battle card</button>)}
-        {war_claimButton &&(<button onClick={() => {war_claim()}}>claim war prize</button>)}
-        <div>{face1[0]}</div>
-        <div>{face2[0]}</div>
-        <div>prize: {prize} </div>
-      </div>
-      
-    </div>
+ 
+    <div className="button-container">
 
+      <button className="">{p1_count}</button>
+      <button className="">{p2_count}</button>
+      <div style={{color: `${winner_color}`}} className="result">{result}</div>
+  
+      {flipButton && (<button className="button" onClick={() => { handle_flipButton() }}>FLIP</button>)}
+      {claimButton && (<button className="button" onClick={() => { handle_claimButton() }}>CLAIM</button>)}
+      {warButton && (<button className="button" onClick={() => { handle_warButton() }}>WAGER</button>)}
+      {war_flipButton && (<button className="button" onClick={() => { war_flip() }}>BATTLE CARD</button>)}
+      {war_claimButton && (<button className="button" onClick={() => { war_claim() }}>CLAIM SPOILS</button>)}
+      {refreshButton && (<button className="button" onClick={() => { refresh() }}>PLAY AGAIN</button>)}
+    </div>
+    
     <div className="pile1">
       {/* <div style={{backgroundImage: `url(${face1[1]})`,backgroundSize: "cover",}}className="card T TC"></div> */}
 

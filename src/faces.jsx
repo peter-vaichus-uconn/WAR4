@@ -58,7 +58,7 @@ import DA from "./face/AD@3x.png";
 
 
 function randomNoRepeats(array) {
-    var copy = array.slice(0); //copy
+    var copy = array.slice(); //copy
     return function() { // return inner function 
       if (copy.length < 1) { copy = array.slice(0); } //recreate copy if exhausted
       var index = Math.floor(Math.random() * copy.length); //get random index
@@ -103,6 +103,22 @@ const deck2 = new Queue()
 
 
 var cards = [
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+    // [2, S2],
+
+
 [14, SA],
 [13, SK],
 [12, SQ],
@@ -116,6 +132,7 @@ var cards = [
 [4, S4],
 [3, S3],
 [2, S2],
+
 
 [14, CA],
 [13, CK],
@@ -163,23 +180,23 @@ var cards = [
 ]
 
 
+//for testing purposes
+for (let i = 0; i < 26; i++) {
+    deck1.enqueue(cards[i]); 
+}
+for (let i = 26; i <52; i++) {
+    deck2.enqueue(cards[i]);
+}
+
+// var chooser = randomNoRepeats(cards);
 
 // for (let i = 0; i < 26; i++) {
-//     deck1.enqueue(cards[i]); 
+//     deck1.enqueue(chooser());
 // }
-// for (let i = 26; i < 52; i++) {
-//     deck2.enqueue(cards[i]);
-// }
-
-var chooser = randomNoRepeats(cards);
-
-for (let i = 0; i < 26; i++) {
-    deck1.enqueue(chooser());
-}
    
-for (let i = 0; i < 26; i++) {
-    deck2.enqueue(chooser());
-}
+// for (let i = 0; i < 26; i++) {
+//     deck2.enqueue(chooser());
+// }
 
 export { Queue }
 export { deck1, deck2 };
