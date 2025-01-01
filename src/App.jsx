@@ -350,7 +350,6 @@ const war_claim = () => {
 
       <button className="">{p1_count}</button>
       <button className="">{p2_count}</button>
-      <button className="">{war_boolean}</button>
       <div style={{color: `${winner_color}`}} className="result">{result}</div>
   
       {flipButton && (<button className="button" onClick={() => { handle_flipButton() }}>FLIP</button>)}
@@ -418,13 +417,13 @@ const war_claim = () => {
       {p1_count > 1 && (<div style={{backgroundImage: `url(${background1})`,backgroundSize: "cover",}}className="card T25"></div>)}
       
       {/* temporary placeholder card for war */}
-      {tcCard && (<div style={{ backgroundImage: `url(${tcface})`,backgroundSize: "cover"}} className= "card TC"></div>)}
+      {tcCard && (<div style={{ borderColor: 'red', borderStyle: 'solid', borderWidth: '2px', backgroundImage: `url(${tcface})`,backgroundSize: "cover"}} className= "card TC"></div>)}
 
       {/* card will disappear if last card is drawn */}
       {p1_count > 0 && (<div style={{ backgroundImage: `url(${background1})`,backgroundSize: "cover"}} className= "card"></div>)}
 
       <ReactCardFlip flipDirection="verticle" isFlipped={isFlipped}>
-        {flipVisible && (<div style={{ backgroundImage: `url(${face1[1]})`,backgroundSize: "cover"}} className= "card TC"></div>)}
+        {flipVisible && (<div style={{ borderColor: 'red', borderStyle: 'solid', borderWidth: '2px',backgroundImage: `url(${face1[1]})`,backgroundSize: "cover"}} className= "card TC"></div>)}
         {false && (<div style={{ backgroundImage: `url(${background1})`,backgroundSize: "cover"}} className= "card" ></div>)}
       </ReactCardFlip>
 
@@ -493,7 +492,7 @@ const war_claim = () => {
       {p2_count > 1 && <div style={{ backgroundImage: `url(${background2})`, backgroundSize: "cover" }} className='card B25'></div>}
       
       {/* temporary placeholder card for war */}
-      {tcCard && (<div style={{ backgroundImage: `url(${bcface})`,backgroundSize: "cover"}} className= "card BC"></div>)}
+      {tcCard && (<div style={{ borderColor: 'red', borderStyle: 'solid', borderWidth: '2px', backgroundImage: `url(${bcface})`,backgroundSize: "cover"}} className= "card BC"></div>)}
 
 
       {p2_count > -1 && (
@@ -501,7 +500,7 @@ const war_claim = () => {
       {p2_count > 0 && (<div style={{ backgroundImage: `url(${background2})`,backgroundSize: "cover"}} className= "card B"></div>)}
 
       <ReactCardFlip flipDirection="verticle" isFlipped={isFlipped}>
-        {flipVisible && (<div style={{ backgroundImage: `url(${face2[1]})`, backgroundSize: "cover" }} className="card BC"></div>)}
+        {flipVisible && (<div style={{ borderColor: 'blue', borderStyle: 'solid', borderWidth: '2px', backgroundImage: `url(${face2[1]})`, backgroundSize: "cover" }} className="card BC"></div>)}
         {false && (<div style={{ backgroundImage: `url(${background2})`, backgroundSize: "cover" }} className="card B"></div>)}
       </ReactCardFlip>
 

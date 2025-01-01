@@ -80,7 +80,7 @@ html, body {
   height: 40px; 
 }
 .button:hover {
-  border-color: #646cff;
+  border-color: #c164ff;
 }
 
 .result{
@@ -172,6 +172,7 @@ html, body {
   position: absolute;
   left: 700px;
   bottom: 248px
+  
 }
 
 .B1  { left: 25px; }
@@ -240,14 +241,3 @@ html, body {
 .BW6{ left: 1100px; bottom: 248px}
 
 
-/* .FC{
-  width: 50px;
-  height: 50px;
-  margin-left: 5px;
-}
-
-.deal{
-  width: 50px;
-  height: 50px;
-  margin-right: 10px;
-} */
